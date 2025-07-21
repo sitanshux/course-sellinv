@@ -20,6 +20,7 @@ import {
 import { useEffect, useState } from "react"
 import { useLoginUserMutation, useRegisterUserMutation } from "../features/api/authApi"
 import { toast } from "sonner"
+import { useNavigate } from "react-router-dom"
 
 const Login = () => {
   const [signupInput, setSignupInput] = useState({
@@ -31,6 +32,7 @@ const Login = () => {
 
   const [registerUser, { data: registerData, error: registerError, isLoading: registerIsLoading, isSuccess: registerIsSuccess }] = useRegisterUserMutation();
   const [loginUser, { data: loginData, error: loginError, isLoading: loginIsLoading, isSuccess: loginIsSuccess }] = useLoginUserMutation();
+  const navigate = useNavigate();
 
   const changeInputHandler = (e, type) => {
     const { name, value } = e.target;
@@ -55,7 +57,8 @@ const Login = () => {
       toast.error(registerData.data.message || "Signup Failed");
     }
     if(loginIsSuccess && loginData){
-      toast.success(loginData.message || "login Successful.")
+      toast.success(loginData.message || "login Successful.");
+      navigate("/");
     }
     if(loginError){
       toast.error(loginData.data.message || "Login Failed");
