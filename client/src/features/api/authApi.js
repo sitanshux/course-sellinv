@@ -31,12 +31,28 @@ export const authApi = createApi({
                 } catch (error) {
                     console.error("Login failed:", error);
                 }
-            },
+            }
         }),
+        loadUser: builder.query({
+            query: () => ({
+                url:"profile",
+                method: "GET"
+            })
+        }),
+        updateUser: builder.mutation({
+            query: (fromData) => ({
+                url:"profile/update",
+                method:"PUT",
+                body:FormData,
+                credentials:"include"
+            })
+        })
     }),
 });
 
 export const {
     useRegisterUserMutation,
     useLoginUserMutation,
+    useLoadUserQuery,
+    useUpdateUserMutation
 } = authApi;
