@@ -114,6 +114,8 @@ export const getUserProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
+        
+        
         const userId = req.id;
         const name = req.body?.name;
         const profilePhoto = req.file;
@@ -142,7 +144,7 @@ export const updateProfile = async (req, res) => {
 
         // Upload new photo
         const cloudResponse = await uploadMedia(profilePhoto.path);
-        const photoUrl = cloudResponse.secure_url;
+        const photoUrl = cloudResponse?.secure_url || "yuguy";
 
         const updatedData = { name, photoUrl };
         const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true }).select("-password");

@@ -27,34 +27,42 @@ function Profile() {
     const [name, setName] = useState("");
     const [profilePhoto, setProfilePhoto] = useState("");
 
-    const { data, isLoading } = useLoadUserQuery();
+    const { data, isLoading, refetch } = useLoadUserQuery();
     const [updateUser, { data: updateUserData, isLoading: updateUserIsLoading, isError, error, isSuccess }] = useUpdateUserMutation();
-    
+
     const onChangeHandler = (e) => {
-        
+
         const file = e.target.files?.[0];
         if (file) setProfilePhoto(file);
     }
-    
-    
-    const updateUserHandler = async() => {
+
+
+    const updateUserHandler = async () => {
         const formData = new FormData();
         formData.append("name", name);
         formData.append("profilePhoto", profilePhoto);
+        console.log(formData);
+        
+
         await updateUser(formData);
     };
-    
-    useEffect(()=>{
-        if(isSuccess){
+
+    useEffect(() => {
+        refetch();
+    }, []);
+
+    useEffect(() => {
+        if (isSuccess) {
+            refetch();
             toast.success(data.message || "Profile updated.");
         }
-        if(isError){
+        if (isError) {
             toast.error(error.message || "failed to update profile.");
         }
-    },[data, error, isSuccess, isError])
-    
+    }, [error, updateUserData, isSuccess, isError])
+
     if (isLoading) return <h1>Profile Loading...</h1>
-    const { user } = data;
+    const  user  = data && data.user;
 
     return (
         <div className='max-w-4xl mx-auto px-4 my-24'>
@@ -62,7 +70,7 @@ function Profile() {
             <div className='flex flex-col md:flex-row items-center md:items-start gap-8 my-5'>
                 <div className='flex flex-col items-center'>
                     <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4">
-                        <AvatarImage src={user.photoUrl || "https://github.com/shadcn.png"} />
+                        <AvatarImage src={user?.photoUrl || "https://github.com/shadcn.png"} />
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                 </div>
@@ -112,9 +120,9 @@ function Profile() {
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button disabled={isLoading} onClick={updateUserHandler} >
+                                <Button disabled={updateUserIsLoading} onClick={updateUserHandler} >
                                     {
-                                        isLoading ? (
+                                        updateUserIsLoading ? (
                                             <>
                                                 <Loader2 className='mr-2 h-4 w-4 animate-spin' /> Please wait
                                             </>
