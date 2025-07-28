@@ -1,7 +1,6 @@
 
 import React from 'react'
 import Login from './pages/Login'
-import Navbar from './components/navbar'
 import HeroSection from './pages/student/HeroSection'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import MainLayout from './layout/MainLayout'
