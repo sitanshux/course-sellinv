@@ -5,58 +5,54 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import React, { useEffect, useState } from 'react';
 import BuyCourseButton from '../../components/BuyCourseButton';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'sonner';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useGetCourseDetailWithStatusQuery } from '../../features/api/purchaseApi';
+import ReactPlayer from 'react-player';
 
 function CourseDetail() {
-  const { courseId } = useParams();
-  const [course, setCourse] = useState(null);
-  const [purchasedCourse, setPurchasedCourse] = useState(false);
+  const params = useParams();
+  const courseId = params.courseId;
+  const navigate = useNavigate();
+  const { data, isLoading, isError, } = useGetCourseDetailWithStatusQuery(courseId);
 
-  useEffect(() => {
-    const fetchCourseDetails = async () => {
-      try {
-        const { data } = await axios.get(`http://localhost:8080/api/v1/course/${courseId}`, { withCredentials: true });
-        setCourse(data?.course);
 
-        // Optional: Check if user already purchased
-        setPurchasedCourse(data?.isPurchased || false);
-      } catch (err) {
-        toast.error("Failed to load course details");
-      }
-    };
+  if (isLoading) return <h1>Loading...</h1>
+  if (isError) return <h1>Failed to load course details</h1>
 
-    fetchCourseDetails();
-  }, [courseId]);
+  console.log(data);
+  
+  const { course, purchased } = data;
 
-  if (!course) return <p className="mt-10 text-center">Loading...</p>;
+  const handleContinueCourse = () => {
+    if(purchased){
+      navigate(`/course-progress/${courseId}`)
+    }
+  }
 
   return (
     <div className='mt-20 space-y-5'>
       <div className='bg-[#2D2F31] text-white'>
         <div className='max-w-7xl mx-auto py-8 px-4 md:px-8 flex flex-col gap-2'>
-          <h1 className='font-bold text-2xl md:text-3xl'>{course.courseTitle}</h1>
-          <p className='text-base md:text-lg'>{course.subTitle}</p>
+          <h1 className='font-bold text-2xl md:text-3xl'>{course?.courseTitle}</h1>
+          <p className='text-base md:text-lg'>{course?.subTitle}</p>
           <p>Created By{" "}
             <span className='text-[#C0C4FC] underline italic'>
-              {course?.instructor?.name || 'Unknown Instructor'}
+              {course?.creator.name}
             </span>
           </p>
           <div className='flex items-center gap-2 text-sm'>
             <BadgeInfo size={16} />
-            <p>Last update {new Date(course.updatedAt).toLocaleDateString()}</p>
+            <p>Last update {course?.createdAt.split("T")[0]}</p>
           </div>
-          <p>Students enrolled: {course.enrolledCount || 0}</p>
+          <p>Students enrolled: {course?.enrolledStudents.length}</p>
         </div>
       </div>
 
       <div className='max-w-7xl mx-auto my-5 px-4 md:px-8 flex flex-col lg:flex-row justify-between gap-10'>
         <div className='w-full lg:w-1/2 space-y-5'>
           <h1 className='font-bold text-xl md:text-2xl'>Description</h1>
-          <p className='text-sm'>{course.description}</p>
+          <p className='text-sm' dangerouslySetInnerHTML={{ __html: course?.description || "" }} />
 
           <Card>
             <CardHeader>
@@ -65,11 +61,11 @@ function CourseDetail() {
             </CardHeader>
             <CardContent className="space-y-3">
               {course.lectures?.map((lecture, idx) => (
-                <div key={lecture._id || idx} className='flex items-center gap-3 text-sm'>
+                <div key={idx} className='flex items-center gap-3 text-sm'>
                   <span>
-                    {purchasedCourse ? <PlayCircle size={14} /> : <Lock size={14} />}
+                    {purchased ? <PlayCircle size={14} /> : <Lock size={14} />}
                   </span>
-                  <p>{lecture.title}</p>
+                  <p>{lecture.lectureTitle}</p>
                 </div>
               ))}
             </CardContent>
@@ -79,22 +75,23 @@ function CourseDetail() {
         <div className='w-full lg:w-1/3'>
           <Card>
             <CardContent className="p-4 flex flex-col">
-              <div className='w-full aspect-video mb-4 bg-gray-300 flex items-center justify-center text-sm'>
-                {course.thumbnail ? (
-                  <img src={course.thumbnail} alt="Course" className="w-full h-full object-cover" />
-                ) : (
-                  "Course Preview"
-                )}
+              <div className='w-full aspect-video mb-4'>
+                <ReactPlayer
+                  width="100%"
+                  height={"100%"}
+                  src={course.lectures[0].videoUrl}
+                  controls={true}
+                />
               </div>
 
               <h1 className="text-lg font-semibold">{course.courseTitle}</h1>
               <Separator className="my-2" />
-              <h1 className='text-lg md:text-xl font-semibold'>₹{course.price}</h1>
+              <h1 className='text-lg md:text-xl font-semibold'>₹{course.coursePrice}</h1>
             </CardContent>
 
             <CardFooter className="flex justify-center p-4">
-              {purchasedCourse ? (
-                <Button className="w-full">Continue Course</Button>
+              {purchased ? (
+                <Button onClick={handleContinueCourse} className="w-full">Continue Course</Button>
               ) : (
                 <BuyCourseButton courseId={courseId} />
               )}
