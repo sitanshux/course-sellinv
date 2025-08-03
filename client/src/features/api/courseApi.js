@@ -4,7 +4,7 @@ const COURSE_API = "http://localhost:8080/api/v1/course";
 
 export const courseApi = createApi({
     reducerPath: "courseApi",
-    tagTypes: ['Refetch_Creator_Course','Refetch_Lecture'],
+    tagTypes: ['Refetch_Creator_Course', 'Refetch_Lecture'],
     baseQuery: fetchBaseQuery({
         baseUrl: COURSE_API,
         credentials: "include"
@@ -18,10 +18,32 @@ export const courseApi = createApi({
             }),
             invalidatesTags: ['Refetch_Creator_Course']
         }),
+        getSearchCourse: builder.query({
+            query: ({ searchQuery, categories, sortByPrice }) => {
+                // Build qiery string
+                let queryString = `/search?query=${encodeURIComponent(searchQuery)}`
+
+                // append cateogry 
+                if (categories && categories.length > 0) {
+                    const categoriesString = categories.map(encodeURIComponent).join(",");
+                    queryString += `&categories=${categoriesString}`;
+                }
+
+                // Append sortByPrice is available
+                if (sortByPrice) {
+                    queryString += `&sortByPrice=${encodeURIComponent(sortByPrice)}`;
+                }
+
+                return {
+                    url: queryString,
+                    method: "GET",
+                }
+            }
+        }),
         getPublishedCourses: builder.query({
             query: () => ({
                 url: "/published-courses",
-                method:"GET",
+                method: "GET",
             }),
         }),
         getCreatorCourse: builder.query({
@@ -57,7 +79,7 @@ export const courseApi = createApi({
                 url: `/${courseId}/lecture`,
                 method: "GET",
             }),
-            providesTags:['Refetch_Lecture']
+            providesTags: ['Refetch_Lecture']
         }),
         editLecture: builder.mutation({
             query: ({ lectureTitle, videoInfo, isPreviewFree, courseId, lectureId }) => ({
@@ -67,22 +89,22 @@ export const courseApi = createApi({
             })
         }),
         removeLecture: builder.mutation({
-            query: ( lectureId ) => ({
+            query: (lectureId) => ({
                 url: `/lecture/${lectureId}`,
                 method: "DELETE",
             }),
-            invalidatesTags:["Refetch_Lecture"]
+            invalidatesTags: ["Refetch_Lecture"]
         }),
         getLectureById: builder.query({
-            query:(lectureId) => ({
-                url:`/lecture/${lectureId}`,
-                method:"GET"
+            query: (lectureId) => ({
+                url: `/lecture/${lectureId}`,
+                method: "GET"
             })
         }),
         publishCourse: builder.mutation({
-            query:({courseId, query}) => ({
-                url:`/${courseId}?publish=${query}`,
-                method:"PATCH"
+            query: ({ courseId, query }) => ({
+                url: `/${courseId}?publish=${query}`,
+                method: "PATCH"
             })
         })
 
@@ -91,6 +113,7 @@ export const courseApi = createApi({
 
 export const {
     useCreateCourseMutation,
+    useGetSearchCourseQuery,
     useGetPublishedCoursesQuery,
     useGetCreatorCourseQuery,
     useEditCourseMutation,
