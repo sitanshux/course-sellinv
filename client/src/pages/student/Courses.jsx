@@ -1,5 +1,5 @@
 import React from 'react'
-import { Skeleton } from "@/components/ui/Skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import Course from './Course';
 import { useGetPublishedCoursesQuery } from '../../features/api/courseApi';
 
