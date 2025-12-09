@@ -96,7 +96,7 @@ const Login = () => {
                   name="email"
                   value={signupInput.email}
                   onChange={(e) => changeInputHandler(e, "signup")}
-                  placeholder="Eg. Biplab@gmail.com"
+                  placeholder="Eg. shubhranshu@gmail.com"
                   required={true} />
               </div>
               <div className="grid gap-3">
