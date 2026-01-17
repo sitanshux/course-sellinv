@@ -87,7 +87,7 @@ const Login = () => {
                   name="name"
                   value={signupInput.name}
                   onChange={(e) => changeInputHandler(e, "signup")}
-                  placeholder="Eg. Biplab"
+                  placeholder="Eg. SHUBHRANSHU"
                   required={true} />
               </div>
               <div className="grid gap-3">
@@ -136,7 +136,7 @@ const Login = () => {
                 <Input type="email"
                   name="email"
                   value={loginInput.email}
-                  placeholder="Eg. Biplab@gmail.com"
+                  placeholder="Eg. shubhranshu@gmail.com"
                   onChange={(e) => changeInputHandler(e, "login")}
                   required={true} />
               </div>
